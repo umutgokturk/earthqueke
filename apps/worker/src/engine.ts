@@ -19,7 +19,7 @@ export interface EngineLogger {
 
 export interface CycleSummary {
   source: SourceId;
-  status: 'SUCCESS' | 'PARTIAL' | 'ERROR' | 'SKIPPED';
+  status: 'SUCCESS' | 'PARTIAL' | 'ERROR' | 'SKIPPED' | 'BACKOFF';
   fetched: number;
   inserted: number;
   updated: number;
@@ -32,9 +32,33 @@ export interface CycleSummary {
 export interface IngestionEngine {
   start(): Promise<void>;
   stop(): Promise<void>;
+  /** A sourceFilter (manual run) bypasses failure backoff for that source. */
   runCycle(sourceFilter?: string): Promise<CycleSummary[]>;
   isRunning(): boolean;
   providers(): EarthquakeProvider[];
+}
+
+/**
+ * Human-diagnosable error text: Node's fetch wraps the real network/TLS error
+ * in `cause` ("fetch failed" alone says nothing) — surface its code/message.
+ */
+export function describeError(err: unknown): string {
+  if (!(err instanceof Error)) return String(err);
+  const parts = [err.message];
+  let cause = (err as { cause?: unknown }).cause;
+  for (let depth = 0; depth < 3 && cause instanceof Error; depth += 1) {
+    const code = (cause as { code?: string }).code;
+    parts.push(code ?? cause.message);
+    cause = (cause as { cause?: unknown }).cause;
+  }
+  const detail = parts.slice(1).filter(Boolean);
+  return detail.length > 0 ? `${parts[0]} (${detail.join(' ← ')})` : parts[0]!;
+}
+
+/** Retry delay after consecutive failures: interval·2^n, capped at 5 minutes. */
+export function failureBackoffMs(errorCount: number, intervalMs: number): number {
+  const exp = Math.min(Math.max(errorCount, 1), 5);
+  return Math.min(5 * 60_000, intervalMs * 2 ** exp);
 }
 
 export interface EngineDeps {
@@ -89,8 +113,10 @@ export function createIngestionEngine(deps: EngineDeps, providerOverride?: Earth
   let running = false;
   let stopped = false;
   const activityState = new Map<string, { lastSavedAt: number; lastScore: number }>();
+  /** Per-source "do not retry before" timestamps (failure backoff). */
+  const backoffUntil = new Map<string, number>();
 
-  async function processProvider(provider: EarthquakeProvider): Promise<CycleSummary> {
+  async function processProvider(provider: EarthquakeProvider, force: boolean): Promise<CycleSummary> {
     const summary: CycleSummary = {
       source: provider.id,
       status: 'SUCCESS',
@@ -104,9 +130,17 @@ export function createIngestionEngine(deps: EngineDeps, providerOverride?: Earth
 
     const sources = await store.listSources();
     const registry = sources.find((s) => s.id === provider.id);
+    // Captured up front: patchSource may mutate the same object later.
+    const previousErrorCount = registry?.errorCount ?? 0;
     if (registry && !registry.enabled) {
       summary.status = 'SKIPPED';
       await store.patchSource(provider.id, { status: 'DISABLED' });
+      return summary;
+    }
+    // Failing source in its backoff window → quiet skip (no run, no log spam).
+    // Manual runs (force) always attempt, so the admin button stays usable.
+    if (!force && (backoffUntil.get(provider.id) ?? 0) > Date.now()) {
+      summary.status = 'BACKOFF';
       return summary;
     }
 
@@ -173,6 +207,7 @@ export function createIngestionEngine(deps: EngineDeps, providerOverride?: Earth
         merged: summary.merged,
         invalid: summary.invalid,
       });
+      backoffUntil.delete(provider.id);
       await store.patchSource(provider.id, {
         status: 'ONLINE',
         lastSuccessAt: new Date().toISOString(),
@@ -180,14 +215,25 @@ export function createIngestionEngine(deps: EngineDeps, providerOverride?: Earth
         errorCount: 0,
         lastError: null,
       });
+      if (previousErrorCount > 0) {
+        await store.logEvent({
+          level: 'INFO',
+          service: 'worker',
+          event: 'ingestion.provider_recovered',
+          message: `${provider.id} yeniden erişilebilir (önceki hata sayısı: ${previousErrorCount}).`,
+          context: { source: provider.id },
+        });
+        logger.info({ source: provider.id }, 'ingestion.provider_recovered');
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
+      const message = describeError(err);
       summary.status = 'ERROR';
       summary.error = message;
       summary.latencyMs = Date.now() - t0;
       await store.finishRun(runId, { status: 'ERROR', error: message, fetched: summary.fetched });
       const current = (await store.listSources()).find((s) => s.id === provider.id);
       const errorCount = (current?.errorCount ?? 0) + 1;
+      backoffUntil.set(provider.id, Date.now() + failureBackoffMs(errorCount, env.INGESTION_INTERVAL_MS));
       await store.patchSource(provider.id, {
         status: errorCount >= OFFLINE_AFTER_ERRORS ? 'OFFLINE' : 'DEGRADED',
         lastErrorAt: new Date().toISOString(),
@@ -195,14 +241,28 @@ export function createIngestionEngine(deps: EngineDeps, providerOverride?: Earth
         errorCount,
         latencyMs: summary.latencyMs,
       });
-      await store.logEvent({
-        level: 'ERROR',
-        service: 'worker',
-        event: 'ingestion.provider_error',
-        message: `${provider.id}: ${message}`,
-        context: { source: provider.id, errorCount },
-      });
-      logger.warn({ source: provider.id, error: message, errorCount }, 'ingestion.provider_error');
+      // Persist to the system log only on transitions (first failure, OFFLINE),
+      // and damp console warnings so a long outage does not flood the logs.
+      if (errorCount === 1 || errorCount === OFFLINE_AFTER_ERRORS) {
+        await store.logEvent({
+          level: 'ERROR',
+          service: 'worker',
+          event: 'ingestion.provider_error',
+          message: `${provider.id}: ${message}`,
+          context: { source: provider.id, errorCount },
+        });
+      }
+      const logPayload = {
+        source: provider.id,
+        error: message,
+        errorCount,
+        nextRetryInSeconds: Math.round(failureBackoffMs(errorCount, env.INGESTION_INTERVAL_MS) / 1000),
+      };
+      if (errorCount <= OFFLINE_AFTER_ERRORS || errorCount % 10 === 0) {
+        logger.warn(logPayload, 'ingestion.provider_error');
+      } else {
+        logger.debug(logPayload, 'ingestion.provider_error');
+      }
     }
     return summary;
   }
@@ -234,9 +294,10 @@ export function createIngestionEngine(deps: EngineDeps, providerOverride?: Earth
     running = true;
     const summaries: CycleSummary[] = [];
     try {
+      const force = sourceFilter !== undefined;
       for (const provider of providers) {
         if (sourceFilter && provider.id !== sourceFilter) continue;
-        summaries.push(await processProvider(provider));
+        summaries.push(await processProvider(provider, force));
       }
       const changedData = summaries.some((s) => s.inserted + s.updated + s.merged > 0);
       if (changedData && cache) {

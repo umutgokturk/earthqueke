@@ -14,6 +14,7 @@ body {
   background:
     radial-gradient(1200px 500px at 70% -10%, rgba(34, 211, 238, 0.06), transparent 60%),
     radial-gradient(900px 420px at 10% 110%, rgba(139, 92, 246, 0.05), transparent 60%),
+    radial-gradient(800px 360px at 92% 112%, rgba(245, 158, 11, 0.05), transparent 60%),
     #060a12;
   color: #e8eef7;
   font-feature-settings: 'cv02', 'cv03', 'cv04';

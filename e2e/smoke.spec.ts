@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test.describe('İSTANBUL LIVE SEISMIC — smoke', () => {
   test('homepage renders KPIs, live indicator and data table', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/İstanbul Live Seismic/);
+    await expect(page).toHaveTitle(/Tarih Mimarlık/);
     await expect(page.getByText('SON 24 SAAT', { exact: false }).first()).toBeVisible();
     await expect(page.getByText(/LIVE|DELAYED|STALE|CONNECTING/).first()).toBeVisible();
     await expect(page.getByText('Canlı Deprem Tablosu')).toBeVisible();

@@ -68,6 +68,7 @@ export const DEPTH_BINS = [
   { key: '20', min: 20, max: 1000, label: '20+ km' },
 ] as const;
 
-export const APP_NAME = 'İSTANBUL LIVE SEISMIC';
+export const APP_NAME = 'TARİH MİMARLIK';
+export const APP_PRODUCT = 'İstanbul Deprem İzleme Paneli';
 export const APP_TAGLINE = "İstanbul'un canlı sismik hareketlerini izleyin.";
 export const APP_TAGLINE_EN = 'Live Istanbul Earthquake Intelligence';

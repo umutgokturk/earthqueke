@@ -3,7 +3,7 @@ import { loadEnv } from '@ils/config';
 import { LocalBus, MemoryStore } from '@ils/database';
 import type { BusMessage } from '@ils/database';
 import type { EarthquakeReport } from '@ils/types';
-import { createIngestionEngine } from '../src/engine';
+import { createIngestionEngine, describeError, failureBackoffMs } from '../src/engine';
 import type { EarthquakeProvider } from '../src/providers/types';
 
 const silentLogger = {
@@ -147,14 +147,62 @@ describe('ingestion engine (fetch→validate→dedupe→store→broadcast)', () 
     expect(sources.find((s) => s.id === 'AFAD')!.status).toBe('ONLINE');
     expect(sources.find((s) => s.id === 'KANDILLI')!.status).toBe('DEGRADED');
 
-    await engine.runCycle();
-    await engine.runCycle();
+    // A scheduled cycle right after the failure skips the source (backoff)…
+    const backoffCycle = await engine.runCycle();
+    expect(backoffCycle.find((s) => s.source === 'KANDILLI')!.status).toBe('BACKOFF');
+    expect((await store.listSources()).find((s) => s.id === 'KANDILLI')!.errorCount).toBe(1);
+
+    // …while a manual (filtered) run always attempts and escalates to OFFLINE.
+    await engine.runCycle('KANDILLI');
+    await engine.runCycle('KANDILLI');
     sources = await store.listSources();
     expect(sources.find((s) => s.id === 'KANDILLI')!.status).toBe('OFFLINE');
     expect(sources.find((s) => s.id === 'KANDILLI')!.lastError).toContain('upstream down');
 
     const runs = await store.listRuns(10);
     expect(runs.some((r) => r.status === 'ERROR' && r.source === 'KANDILLI')).toBe(true);
+  });
+
+  it('a recovered provider clears backoff and logs a recovery event', async () => {
+    const env = testEnv();
+    const store = new MemoryStore();
+    await store.init();
+    let fail = true;
+    const flaky: EarthquakeProvider = {
+      id: 'KANDILLI',
+      name: 'KANDILLI',
+      getLatestEarthquakes: async () => {
+        if (fail) throw new Error('upstream down');
+        return [kandilliReport()];
+      },
+    };
+    const engine = createIngestionEngine({ env, store, bus: new LocalBus(), logger: silentLogger }, [flaky]);
+
+    await engine.runCycle();
+    fail = false;
+    await engine.runCycle('KANDILLI'); // manual retry succeeds
+    const source = (await store.listSources()).find((s) => s.id === 'KANDILLI')!;
+    expect(source.status).toBe('ONLINE');
+    expect(source.errorCount).toBe(0);
+    const events = await store.listEvents({ limit: 50 });
+    expect(events.some((e) => e.event === 'ingestion.provider_recovered')).toBe(true);
+  });
+
+  it('describeError surfaces the fetch cause chain', () => {
+    const cause = Object.assign(new Error('unable to verify the first certificate'), {
+      code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+    });
+    const err = Object.assign(new TypeError('fetch failed'), { cause });
+    expect(describeError(err)).toBe('fetch failed (UNABLE_TO_VERIFY_LEAF_SIGNATURE)');
+    expect(describeError(new Error('plain'))).toBe('plain');
+    expect(describeError('oops')).toBe('oops');
+  });
+
+  it('failureBackoffMs grows exponentially and caps at 5 minutes', () => {
+    expect(failureBackoffMs(1, 20_000)).toBe(40_000);
+    expect(failureBackoffMs(2, 20_000)).toBe(80_000);
+    expect(failureBackoffMs(4, 20_000)).toBe(300_000);
+    expect(failureBackoffMs(50, 20_000)).toBe(300_000);
   });
 
   it('skips disabled sources', async () => {

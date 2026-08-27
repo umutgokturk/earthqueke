@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'İstanbul Live Seismic',
-    short_name: 'ILS',
+    name: 'Tarih Mimarlık — İstanbul Deprem Paneli',
+    short_name: 'Tarih Mimarlık',
     description:
       'İstanbul ve Marmara bölgesindeki güncel deprem verilerini, fay hatlarını ve sismik aktivite analizlerini canlı olarak izleyin.',
     start_url: '/',
