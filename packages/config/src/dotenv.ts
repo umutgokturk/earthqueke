@@ -25,7 +25,8 @@ export function loadDotEnv(startDir: string = process.cwd(), maxLevelsUp = 4): s
 }
 
 function applyEnvFile(file: string): void {
-  const text = readFileSync(file, 'utf8');
+  // Strip a UTF-8 BOM — Windows editors and PowerShell often write one.
+  const text = readFileSync(file, 'utf8').replace(/^\uFEFF/, '');
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.trim();
     if (!line || line.startsWith('#')) continue;

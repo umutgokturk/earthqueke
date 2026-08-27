@@ -19,7 +19,9 @@ const rootEnvFile = path.resolve(webDir, '..', '..', '.env');
 
 const fileEnv = {};
 if (existsSync(rootEnvFile)) {
-  for (const rawLine of readFileSync(rootEnvFile, 'utf8').split(/\r?\n/)) {
+  // BOM stripped — Windows editors and PowerShell often write one.
+  const text = readFileSync(rootEnvFile, 'utf8').replace(/^\uFEFF/, '');
+  for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.trim();
     if (!line || line.startsWith('#')) continue;
     const eq = line.indexOf('=');
