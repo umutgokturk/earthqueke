@@ -54,15 +54,18 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', 'Manrope', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        display: ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        DEFAULT: '8px',
-        md: '8px',
-        lg: '12px',
-        xl: '16px',
+        DEFAULT: '10px',
+        md: '10px',
+        lg: '14px',
+        xl: '18px',
+        '2xl': '22px',
       },
       boxShadow: {
-        panel: '0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px rgba(0,0,0,0.35)',
+        panel: '0 1px 0 rgba(255,255,255,0.04) inset, 0 10px 30px rgba(0,0,0,0.35)',
+        float: '0 18px 44px rgba(0,0,0,0.5)',
         glow: '0 0 18px rgba(34,211,238,0.25)',
       },
       keyframes: {

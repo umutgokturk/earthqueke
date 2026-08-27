@@ -23,7 +23,7 @@ export function Nav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-ink-900/85 backdrop-blur-md">
+    <header className="sticky top-0 z-50 bg-ink-900/65 backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-4 px-4">
         <BrandMark />
 
@@ -33,10 +33,10 @@ export function Nav() {
               key={link.href}
               href={link.href}
               className={clsx(
-                'rounded-md px-3 py-1.5 text-[11px] font-bold tracking-[0.14em] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-accent',
+                'rounded-full px-3.5 py-1.5 text-[11px] font-bold tracking-[0.14em] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-accent',
                 pathname.startsWith(link.href)
-                  ? 'bg-accent-soft text-accent'
-                  : 'text-txt-soft hover:bg-ink-700 hover:text-txt',
+                  ? 'bg-accent-soft text-accent ring-1 ring-accent/30 shadow-[0_0_16px_rgba(34,211,238,0.16)]'
+                  : 'text-txt-soft hover:bg-ink-700/80 hover:text-txt',
               )}
             >
               {link.label}
@@ -49,7 +49,7 @@ export function Nav() {
           <NotifySettings />
           <LiveIndicator />
           <button
-            className="rounded-md border border-line p-2 text-txt-soft lg:hidden"
+            className="rounded-full border border-line p-2 text-txt-soft transition-colors hover:border-line-strong hover:text-txt lg:hidden"
             aria-label="Menüyü aç/kapat"
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -70,7 +70,7 @@ export function Nav() {
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className={clsx(
-                  'rounded-md px-3 py-2 text-[11px] font-bold tracking-[0.14em]',
+                  'rounded-lg px-3 py-2 text-[11px] font-bold tracking-[0.14em]',
                   pathname.startsWith(link.href) ? 'bg-accent-soft text-accent' : 'text-txt-soft hover:bg-ink-700',
                 )}
               >
@@ -80,6 +80,7 @@ export function Nav() {
           </div>
         </nav>
       )}
+      <div aria-hidden className="hairline-x" />
     </header>
   );
 }

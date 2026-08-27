@@ -18,13 +18,21 @@ function Kpi({
   href?: string;
 }) {
   const inner = (
-    <Card className="h-full px-4 py-3 transition-colors hover:border-line-strong">
+    <Card className={href ? 'panel-interactive h-full px-4 py-3' : 'h-full px-4 py-3'}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-txt-mute">{label}</p>
-      <p className="mt-1.5 text-2xl font-bold tabular-nums text-txt">{value}</p>
-      {hint ? <p className="mt-0.5 truncate text-[11px] text-txt-mute">{hint}</p> : null}
+      <p className="mt-1.5 font-display text-[26px] font-bold leading-none tracking-tight tabular-nums text-txt">
+        {value}
+      </p>
+      {hint ? <p className="mt-1 truncate text-[11px] text-txt-mute">{hint}</p> : null}
     </Card>
   );
-  return href ? <Link href={href}>{inner}</Link> : inner;
+  return href ? (
+    <Link href={href} className="block h-full rounded-xl focus:outline-none focus-visible:ring-1 focus-visible:ring-accent">
+      {inner}
+    </Link>
+  ) : (
+    inner
+  );
 }
 
 /** KPI row (spec §7): counts, max magnitude, avg depth, nearest event, activity. */

@@ -38,7 +38,10 @@ export function LiveIndicator({ compact = false }: { compact?: boolean }) {
         : `${Math.floor(seconds / 60)} dk önce güncellendi`;
 
   return (
-    <div className="flex items-center gap-2" title={connection === 'polling' ? 'WebSocket kapalı — 30 sn polling modunda' : undefined}>
+    <div
+      className="flex items-center gap-2 rounded-full border border-line bg-ink-800/70 px-3 py-1.5"
+      title={connection === 'polling' ? 'WebSocket kapalı — 30 sn polling modunda' : undefined}
+    >
       <span
         aria-hidden
         className="h-2 w-2 animate-pulse-dot rounded-full"

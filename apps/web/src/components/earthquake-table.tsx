@@ -23,7 +23,7 @@ function Row({ event, isNew, compact }: { event: Earthquake; isNew: boolean; com
   return (
     <tr
       className={clsx(
-        'border-b border-line/60 text-xs transition-colors hover:bg-ink-700/60',
+        'border-b border-line/50 text-xs transition-colors hover:bg-ink-600/40',
         isNew && 'animate-row-flash',
       )}
     >
@@ -109,9 +109,9 @@ export function EarthquakeTable({
       <table className="w-full min-w-[720px] border-collapse text-left">
         <caption className="sr-only">Deprem listesi — zaman, büyüklük, derinlik, konum, kaynak ve fay bilgileri</caption>
         <thead>
-          <tr className="border-b border-line-strong text-[10px] uppercase tracking-[0.12em] text-txt-mute">
+          <tr className="border-b border-line-strong bg-ink-800/50 text-[10px] uppercase tracking-[0.12em] text-txt-mute">
             {headers.map((h) => (
-              <th key={h} scope="col" className="px-3 py-2 font-semibold">
+              <th key={h} scope="col" className="px-3 py-2.5 font-semibold">
                 {h}
               </th>
             ))}

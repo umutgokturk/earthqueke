@@ -38,7 +38,7 @@ export function NotifySettings() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Bildirim ayarları"
         aria-expanded={open}
-        className="rounded-md border border-line p-1.5 text-txt-soft hover:text-txt focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+        className="rounded-full border border-line p-2 text-txt-soft transition-colors hover:border-line-strong hover:text-txt focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
         title="Bildirim ve ses ayarları"
       >
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -52,7 +52,7 @@ export function NotifySettings() {
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-64 rounded-lg border border-line bg-ink-700 p-3 shadow-panel">
+        <div className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-line bg-ink-700/95 p-3 shadow-float backdrop-blur-md">
           <p className="text-[10px] font-bold uppercase tracking-widest text-txt-mute">Tarayıcı bildirimi eşiği</p>
           <div className="mt-2 grid grid-cols-4 gap-1">
             {([0, 3, 4, 5] as const).map((v) => (

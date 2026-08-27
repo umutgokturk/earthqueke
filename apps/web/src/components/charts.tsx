@@ -35,7 +35,7 @@ function DarkTooltip({
 }: any) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div className="rounded-md border border-line bg-ink-700/95 px-3 py-2 text-xs shadow-panel">
+    <div className="rounded-lg border border-line bg-ink-700/95 px-3 py-2 text-xs shadow-float backdrop-blur-sm">
       {label !== undefined && (
         <p className="mb-1 font-semibold text-txt">{labelFormatter ? labelFormatter(label) : String(label)}</p>
       )}

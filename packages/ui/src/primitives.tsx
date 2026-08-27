@@ -11,10 +11,7 @@ export function Card({
 }: HTMLAttributes<HTMLDivElement>): ReactNode {
   return (
     <div
-      className={clsx(
-        'rounded-lg border border-line bg-ink-800/80 shadow-panel backdrop-blur-sm',
-        className,
-      )}
+      className={clsx('panel rounded-xl shadow-panel backdrop-blur-sm', className)}
       {...rest}
     >
       {children}
@@ -110,7 +107,7 @@ export function DataClassBadge({ dataClass, className }: { dataClass: string; cl
 }
 
 export function Skeleton({ className }: { className?: string }): ReactNode {
-  return <div className={clsx('animate-pulse rounded bg-ink-600/60', className)} aria-hidden />;
+  return <div className={clsx('animate-pulse rounded-md bg-ink-600/50', className)} aria-hidden />;
 }
 
 export function EmptyState({

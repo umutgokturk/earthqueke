@@ -3,8 +3,9 @@ import { TarihLogo } from './brand';
 
 export function FooterBar() {
   return (
-    <footer className="border-t border-line bg-ink-900/70">
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-4 py-4 text-[11px] text-txt-mute sm:flex-row sm:items-center sm:justify-between">
+    <footer className="bg-ink-900/60">
+      <div aria-hidden className="hairline-x" />
+      <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-4 py-5 text-[11px] text-txt-mute sm:flex-row sm:items-center sm:justify-between">
         <p className="flex items-center gap-3">
           <TarihLogo className="h-8 w-auto shrink-0 opacity-80" />
           <span>
