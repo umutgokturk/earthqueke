@@ -1,4 +1,5 @@
 import { loadEnv } from '@ils/config';
+import { loadDotEnv } from '@ils/config/dotenv';
 import { createBus, createCache, createStore } from '@ils/database';
 import pino from 'pino';
 import { createIngestionEngine } from './engine';
@@ -9,6 +10,7 @@ import { createIngestionEngine } from './engine';
  * process instead, because the in-memory store cannot cross processes.
  */
 async function main(): Promise<void> {
+  loadDotEnv(); // repo-root .env (real environment variables win)
   const env = loadEnv();
   const logger = pino({ level: env.LOG_LEVEL, base: { service: 'worker' } });
 

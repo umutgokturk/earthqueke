@@ -107,6 +107,19 @@ npm run db:migrate   # SQL migration'ları uygula
 npm run db:seed      # fay/bölge/kaynak seed (+ dev'de sentetik geçmiş; --force, --no-history)
 ```
 
+## Portları Değiştirme
+
+Portlar kök dizindeki `.env` dosyasından okunur — tek yerden, kalıcı:
+
+```bash
+# .env (repo kökünde)
+WEB_PORT=5000    # site  → http://localhost:5000
+API_PORT=4000    # API   → proxy ve WebSocket adresleri bundan otomatik türetilir
+```
+
+Dosyayı bir kez oluşturman yeterli; `npm run dev` / `npm run start` her açılışta uygular. Gerçek ortam
+değişkenleri `.env` dosyasını ezer.
+
 ## Ortam Değişkenleri
 
 Tam liste ve açıklamalar: [`.env.example`](./.env.example). Öne çıkanlar:
