@@ -75,6 +75,11 @@ export type AppEnv = z.infer<typeof EnvSchema> & {
  */
 export function loadEnv(raw: NodeJS.ProcessEnv = process.env): AppEnv {
   const parsed = EnvSchema.parse(raw);
+  // PaaS convention (Render, Heroku, …): the platform injects PORT and expects
+  // the service to bind it. An explicit API_PORT still wins.
+  if (raw.API_PORT === undefined && raw.PORT !== undefined && Number.isFinite(Number(raw.PORT))) {
+    parsed.API_PORT = Number(raw.PORT);
+  }
   const isProduction = parsed.NODE_ENV === 'production';
   const isTest = parsed.NODE_ENV === 'test';
   const memoryMode = !parsed.DATABASE_URL;

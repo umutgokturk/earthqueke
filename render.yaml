@@ -1,0 +1,62 @@
+# TARİH MİMARLIK — İstanbul deprem paneli · Render.com Blueprint
+#
+# Kurulum: render.com → New → Blueprint → bu repo'yu seç → Apply.
+# İlk dağıtımdan sonra iki servisin adreslerini birbirine tanıtman gerekir
+# (aşağıdaki sync: false değişkenleri) — adımlar README "Ücretsiz Yayın" bölümünde.
+#
+# Free planda servisler 15 dk hareketsizlikte uyur; ilk ziyarette ~1 dk içinde
+# uyanır. Veritabanı yoktur (bellek modu): uyanınca AFAD'dan son 6 saat otomatik
+# geri yüklenir ve canlı akış kaldığı yerden devam eder.
+
+services:
+  # ── REST + WebSocket API (gömülü veri toplama ile) ─────────
+  - type: web
+    name: tarih-mimarlik-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev --no-audit --no-fund && npm run build -w @ils/api
+    startCommand: node apps/api/dist/main.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: '20'
+      - key: NODE_ENV
+        value: production
+      - key: EMBEDDED_INGESTION
+        value: 'true'
+      - key: LOG_LEVEL
+        value: info
+      - key: ADMIN_USERNAME
+        value: admin
+      # Admin şifresi — Apply sırasında sorulur, kendin belirle
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Oturum imza anahtarı — Render otomatik üretir
+      - key: ADMIN_JWT_SECRET
+        generateValue: true
+      # Web servisinin PUBLIC adresi (örn. https://tarih-mimarlik-web.onrender.com)
+      # WebSocket origin kontrolü ve CORS için gerekli — web açıldıktan sonra doldur
+      - key: WEB_ORIGIN
+        sync: false
+
+  # ── Next.js arayüz ─────────────────────────────────────────
+  - type: web
+    name: tarih-mimarlik-web
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev --no-audit --no-fund && npm run build -w @ils/web
+    startCommand: npm run start -w @ils/web
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: '20'
+      - key: NODE_ENV
+        value: production
+      # API servisinin PUBLIC adresi (örn. https://tarih-mimarlik-api.onrender.com)
+      - key: API_PROXY_TARGET
+        sync: false
+      # WebSocket adresi (örn. wss://tarih-mimarlik-api.onrender.com/ws)
+      # Boş kalırsa uygulama 30 sn'lik polling moduna düşer — yine çalışır
+      - key: NEXT_PUBLIC_WS_URL
+        sync: false
