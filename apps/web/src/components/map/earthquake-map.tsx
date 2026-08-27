@@ -68,6 +68,9 @@ export function EarthquakeMap({
   const mapRef = useRef<MlMap | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
+  /** Basemap tiles failing — data layers still render; shown as a soft banner. */
+  const [baseMapIssue, setBaseMapIssue] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
   const [selection, setSelection] = useState<Selection>(null);
   const pulseFrame = useRef<number | null>(null);
 
@@ -152,20 +155,43 @@ export function EarthquakeMap({
       return;
     }
     mapRef.current = map;
+    if (process.env.NODE_ENV !== 'production') {
+      (window as unknown as { __ilsMap?: MlMap }).__ilsMap = map; // dev debugging hook
+    }
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
-    const failTimer = setTimeout(() => {
-      // No style/tiles after 15 s → surface the graceful fallback message.
-      if (!map.isStyleLoaded() && !map.loaded()) setMapError(true);
-    }, 15_000);
+    // Basemap tile health: data layers never wait for raster tiles. If tiles
+    // keep failing we show a soft banner; the first tile that arrives clears it.
+    let tileErrors = 0;
+    let tilesOk = false;
+    map.on('error', (e) => {
+      const sourceId = (e as { sourceId?: string }).sourceId;
+      if (sourceId === 'carto' || (!sourceId && !tilesOk)) {
+        tileErrors += 1;
+        if (!tilesOk && tileErrors >= 3) setBaseMapIssue(true);
+      }
+    });
+    map.on('sourcedata', (e) => {
+      if (e.sourceId === 'carto' && (e as { tile?: unknown }).tile && e.isSourceLoaded !== false) {
+        tilesOk = true;
+        setBaseMapIssue(false);
+      }
+    });
 
-    map.on('load', () => {
-      clearTimeout(failTimer);
+    // 'style.load' fires as soon as the style itself is ready (instant for the
+    // inline raster style) — earthquake/fault layers appear immediately even
+    // on a slow tile connection, instead of waiting for the full 'load'.
+    map.on('style.load', () => {
+      if (map.getSource('quakes')) return;
       map.addSource('quakes', { type: 'geojson', data: EMPTY_FC });
       map.addSource('faults', { type: 'geojson', data: EMPTY_FC });
       map.addSource('boundary', { type: 'geojson', data: EMPTY_FC });
       map.addSource('districts', { type: 'geojson', data: EMPTY_FC });
       map.addSource('pulse', { type: 'geojson', data: EMPTY_FC });
+      // Symbol (text) layers get their own sources: glyph downloads can stall
+      // a source's tiles, and labels must never block the line/point layers.
+      map.addSource('faults-labels', { type: 'geojson', data: EMPTY_FC });
+      map.addSource('districts-labels', { type: 'geojson', data: EMPTY_FC });
 
       map.addLayer({
         id: 'heatmap',
@@ -212,7 +238,7 @@ export function EarthquakeMap({
       map.addLayer({
         id: 'fault-label',
         type: 'symbol',
-        source: 'faults',
+        source: 'faults-labels',
         layout: {
           'symbol-placement': 'line',
           'text-field': ['get', 'name'],
@@ -237,7 +263,7 @@ export function EarthquakeMap({
       map.addLayer({
         id: 'district-label',
         type: 'symbol',
-        source: 'districts',
+        source: 'districts-labels',
         minzoom: 8.6,
         layout: {
           'text-field': ['get', 'name'],
@@ -326,20 +352,16 @@ export function EarthquakeMap({
       setLoaded(true);
     });
 
-    map.on('error', (e) => {
-      // Tile errors are common offline; only a missing style is fatal.
-      if (!map.isStyleLoaded() && String(e.error?.message ?? '').includes('style')) setMapError(true);
-    });
-
     return () => {
-      clearTimeout(failTimer);
       if (pulseFrame.current) cancelAnimationFrame(pulseFrame.current);
       map.remove();
       mapRef.current = null;
       setLoaded(false);
+      setBaseMapIssue(false);
     };
+    // re-runs only on manual retry
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [retryToken]);
 
   // resolve quake clicks against loaded data (custom event keeps the map handler stable)
   useEffect(() => {
@@ -363,12 +385,14 @@ export function EarthquakeMap({
     const map = mapRef.current;
     if (!map || !loaded) return;
     (map.getSource('faults') as maplibregl.GeoJSONSource | undefined)?.setData(faultGeojson);
+    (map.getSource('faults-labels') as maplibregl.GeoJSONSource | undefined)?.setData(faultGeojson);
   }, [faultGeojson, loaded]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loaded) return;
     (map.getSource('boundary') as maplibregl.GeoJSONSource | undefined)?.setData(boundaryGeojson);
     (map.getSource('districts') as maplibregl.GeoJSONSource | undefined)?.setData(districtGeojson);
+    (map.getSource('districts-labels') as maplibregl.GeoJSONSource | undefined)?.setData(districtGeojson);
   }, [boundaryGeojson, districtGeojson, loaded]);
 
   // ── layer visibility ──────────────────────────────────────
@@ -429,12 +453,22 @@ export function EarthquakeMap({
   if (mapError) {
     return (
       <div className={`relative overflow-hidden rounded-lg border border-line bg-ink-800 ${className ?? ''}`}>
-        <EmptyState
-          title="Harita servisi kullanılamıyor."
-          hint="Harita karoları yüklenemedi. Deprem verileri tablo ve grafiklerden izlenebilir."
-          icon="🗺"
-          className="h-full min-h-[280px]"
-        />
+        <div className="flex h-full min-h-[280px] flex-col items-center justify-center">
+          <EmptyState
+            title="Harita servisi kullanılamıyor."
+            hint="Harita başlatılamadı (WebGL desteği gerekli). Deprem verileri tablo ve grafiklerden izlenebilir."
+            icon="🗺"
+          />
+          <button
+            onClick={() => {
+              setMapError(false);
+              setRetryToken((t) => t + 1);
+            }}
+            className="rounded-md border border-accent/50 bg-accent-soft px-4 py-1.5 text-xs font-semibold text-accent hover:bg-accent/20"
+          >
+            Yeniden dene
+          </button>
+        </div>
       </div>
     );
   }
@@ -445,6 +479,20 @@ export function EarthquakeMap({
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-ink-800/70 backdrop-blur-sm">
           <p className="text-xs text-txt-mute">Harita yükleniyor…</p>
+        </div>
+      )}
+      {baseMapIssue && (
+        <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-md border border-status-warn/50 bg-ink-800/95 px-3 py-1.5 text-[11px] text-status-warn shadow-panel">
+          Harita altlığı yüklenemedi — deprem katmanları yine de gösteriliyor.
+          <button
+            onClick={() => {
+              setBaseMapIssue(false);
+              setRetryToken((t) => t + 1);
+            }}
+            className="rounded border border-status-warn/50 px-2 py-0.5 font-semibold hover:bg-status-warn/10"
+          >
+            Yeniden dene
+          </button>
         </div>
       )}
       {showControls && (
