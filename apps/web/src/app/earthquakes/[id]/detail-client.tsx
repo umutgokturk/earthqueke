@@ -55,7 +55,10 @@ function DetailMap({ lat, lon, faultSlug }: { lat: number; lon: number; faultSlu
       setFailed(true);
       return;
     }
-    map.on('load', () => {
+    // style.load: draw the event/fault layers immediately, without waiting for
+    // basemap tiles (slow or blocked tile hosts must not hide the data).
+    map.on('style.load', () => {
+      if (map.getSource('event')) return;
       const fault = faults?.find((f) => f.slug === faultSlug);
       if (fault) {
         map.addSource('fault', {
