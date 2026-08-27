@@ -1,0 +1,42 @@
+[
+  {
+    "rms": "0.54",
+    "eventID": "648744",
+    "location": "Marmara Denizi - [12.34 km] Silivri (İstanbul)",
+    "latitude": "40.8123",
+    "longitude": "28.1234",
+    "depth": "12.4",
+    "type": "ML",
+    "magnitude": "2.1",
+    "country": "Türkiye",
+    "province": "İstanbul",
+    "district": "Silivri",
+    "date": "2026-08-27T09:15:30",
+    "isEventUpdate": false,
+    "lastUpdateDate": null
+  },
+  {
+    "rms": "0.31",
+    "eventID": 648750,
+    "location": "Adalar Açıkları (Marmara Denizi)",
+    "latitude": 40.8391,
+    "longitude": 29.0512,
+    "depth": 7.9,
+    "type": "MW",
+    "magnitude": 3.4,
+    "country": "Türkiye",
+    "province": "İstanbul",
+    "district": "Adalar",
+    "date": "2026-08-27T10:02:11Z",
+    "isEventUpdate": true,
+    "lastUpdateDate": "2026-08-27T10:12:00"
+  },
+  {
+    "eventID": "broken-no-coords",
+    "location": "Eksik kayıt",
+    "latitude": null,
+    "longitude": "28.0",
+    "magnitude": "1.0",
+    "date": "2026-08-27T10:00:00"
+  }
+]
