@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { TarihLogo } from './brand';
+import { MesnetLogo } from './brand';
 
 export function FooterBar() {
   return (
@@ -7,9 +7,9 @@ export function FooterBar() {
       <div aria-hidden className="hairline-x" />
       <div className="mx-auto flex max-w-[1600px] flex-col gap-2 px-4 py-5 text-[11px] text-txt-mute sm:flex-row sm:items-center sm:justify-between">
         <p className="flex items-center gap-3">
-          <TarihLogo className="h-8 w-auto shrink-0 opacity-80" />
+          <MesnetLogo className="h-8 w-auto shrink-0 opacity-80" />
           <span>
-            <span className="font-serif font-bold tracking-[0.18em] text-txt-soft">TARİH MİMARLIK</span> · Bu panel
+            <span className="font-display font-bold tracking-[0.18em] text-txt-soft">MESNET MÜHENDİSLİK</span> · Bu panel
             resmî bir deprem ölçüm kurumu değildir ve deprem tahmini yapmaz. Veriler AFAD ve Kandilli
             Rasathanesi&apos;nin yayınladığı bilgilerden alınmaktadır.
           </span>

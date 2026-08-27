@@ -6,19 +6,19 @@ import { FooterBar } from '@/components/footer-bar';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Tarih Mimarlık | Canlı İstanbul Deprem Paneli',
-    template: '%s | Tarih Mimarlık',
+    default: 'Mesnet Mühendislik | Canlı İstanbul Deprem Paneli',
+    template: '%s | Mesnet Mühendislik',
   },
   description:
-    'Tarih Mimarlık deprem izleme paneli: İstanbul ve Marmara bölgesindeki güncel deprem verilerini, fay hatlarını ve sismik aktivite analizlerini canlı olarak izleyin.',
-  keywords: ['istanbul deprem', 'son depremler', 'marmara deprem', 'fay hattı', 'canlı deprem', 'sismik aktivite', 'tarih mimarlık'],
+    'Mesnet Mühendislik deprem izleme paneli: İstanbul ve Marmara bölgesindeki güncel deprem verilerini, fay hatlarını ve sismik aktivite analizlerini canlı olarak izleyin.',
+  keywords: ['istanbul deprem', 'son depremler', 'marmara deprem', 'fay hattı', 'canlı deprem', 'sismik aktivite', 'mesnet mühendislik'],
   openGraph: {
-    title: 'Tarih Mimarlık — Canlı İstanbul Deprem Paneli',
+    title: 'Mesnet Mühendislik — Canlı İstanbul Deprem Paneli',
     description:
       'İstanbul ve Marmara bölgesindeki güncel deprem verilerini, fay hatlarını ve sismik aktivite analizlerini canlı olarak izleyin.',
     type: 'website',
     locale: 'tr_TR',
-    siteName: 'Tarih Mimarlık',
+    siteName: 'Mesnet Mühendislik',
   },
   robots: { index: true, follow: true },
 };
