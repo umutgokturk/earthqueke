@@ -6,19 +6,19 @@ import { FooterBar } from '@/components/footer-bar';
 
 export const metadata: Metadata = {
   title: {
-    default: 'İstanbul Live Seismic | Canlı İstanbul Deprem Verileri',
-    template: '%s | İstanbul Live Seismic',
+    default: 'Tarih Mimarlık | Canlı İstanbul Deprem Paneli',
+    template: '%s | Tarih Mimarlık',
   },
   description:
-    'İstanbul ve Marmara bölgesindeki güncel deprem verilerini, fay hatlarını ve sismik aktivite analizlerini canlı olarak izleyin.',
-  keywords: ['istanbul deprem', 'son depremler', 'marmara deprem', 'fay hattı', 'canlı deprem', 'sismik aktivite'],
+    'Tarih Mimarlık deprem izleme paneli: İstanbul ve Marmara bölgesindeki güncel deprem verilerini, fay hatlarını ve sismik aktivite analizlerini canlı olarak izleyin.',
+  keywords: ['istanbul deprem', 'son depremler', 'marmara deprem', 'fay hattı', 'canlı deprem', 'sismik aktivite', 'tarih mimarlık'],
   openGraph: {
-    title: 'İstanbul Live Seismic — Canlı İstanbul Deprem Verileri',
+    title: 'Tarih Mimarlık — Canlı İstanbul Deprem Paneli',
     description:
       'İstanbul ve Marmara bölgesindeki güncel deprem verilerini, fay hatlarını ve sismik aktivite analizlerini canlı olarak izleyin.',
     type: 'website',
     locale: 'tr_TR',
-    siteName: 'İstanbul Live Seismic',
+    siteName: 'Tarih Mimarlık',
   },
   robots: { index: true, follow: true },
 };

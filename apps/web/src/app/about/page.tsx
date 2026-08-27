@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Hakkında',
   description:
-    'İstanbul Live Seismic platformunun veri kaynakları, yöntemleri, sınırları ve sorumluluk reddi.',
+    'Tarih Mimarlık deprem izleme panelinin veri kaynakları, yöntemleri, sınırları ve sorumluluk reddi.',
 };
 
 const sectionCls = 'rounded-lg border border-line bg-ink-800/80 p-5';
@@ -14,11 +14,11 @@ export default function AboutPage() {
       <h1 className="text-sm font-extrabold tracking-[0.18em] text-txt">HAKKINDA</h1>
 
       <section className={sectionCls}>
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">Bu platform nedir?</h2>
+        <h2 className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">Bu panel nedir?</h2>
         <p className="text-sm leading-relaxed text-txt-soft">
-          İSTANBUL LIVE SEISMIC, İstanbul ve Marmara çevresindeki güncel deprem hareketlerini gerçek zamanlı izleyen,
-          harita üzerinde gösteren, fay segmentlerini görselleştiren ve geçmiş verileri analiz eden açık bir izleme
-          panelidir.
+          TARİH MİMARLIK deprem izleme paneli, İstanbul ve Marmara çevresindeki güncel deprem hareketlerini gerçek
+          zamanlı izleyen, harita üzerinde gösteren, fay segmentlerini görselleştiren ve geçmiş verileri analiz eden
+          bir izleme panelidir.
         </p>
       </section>
 

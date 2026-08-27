@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { clsx } from 'clsx';
+import { BrandMark } from './brand';
 import { LiveIndicator } from './live-indicator';
 import { GlobalSearch } from './global-search';
 import { NotifySettings } from './notify-settings';
@@ -23,15 +24,8 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-ink-900/85 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-4 px-4">
-        <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Ana sayfa">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M2 13h3l2-6 3 12 3-16 3 12 2-4h4" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="text-sm font-extrabold tracking-[0.12em] text-txt">
-            İSTANBUL <span className="text-accent">LIVE</span> SEISMIC
-          </span>
-        </Link>
+      <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-4 px-4">
+        <BrandMark />
 
         <nav aria-label="Ana menü" className="hidden items-center gap-1 lg:flex">
           {LINKS.map((link) => (

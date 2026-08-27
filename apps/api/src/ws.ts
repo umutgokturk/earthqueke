@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { WebSocket } from 'ws';
 import type { EventBus } from '@ils/database';
-import type { AppEnv } from '@ils/config';
+import { APP_NAME, type AppEnv } from '@ils/config';
 import type { WsServerEvent } from '@ils/types';
 
 export interface WsHub {
@@ -56,7 +56,7 @@ export function registerWsHub(app: FastifyInstance, bus: EventBus, env: AppEnv):
       JSON.stringify({
         type: 'hello',
         serverTime: new Date().toISOString(),
-        message: 'İSTANBUL LIVE SEISMIC canlı veri akışı',
+        message: `${APP_NAME} canlı deprem veri akışı`,
       } satisfies WsServerEvent),
     );
     socket.on('close', () => clients.delete(socket));
