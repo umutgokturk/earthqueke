@@ -1,8 +1,11 @@
 # TARİH MİMARLIK — İstanbul deprem paneli · Render.com Blueprint
 #
-# Kurulum: render.com → New → Blueprint → bu repo'yu seç → Apply.
-# İlk dağıtımdan sonra iki servisin adreslerini birbirine tanıtman gerekir
-# (aşağıdaki sync: false değişkenleri) — adımlar README "Ücretsiz Yayın" bölümünde.
+# Kurulum: render.com → New → Blueprint → bu repo'yu seç → Apply. Hepsi bu;
+# elle ortam değişkeni girmek gerekmez (admin şifresi otomatik üretilir,
+# servis adresleri aşağıda hazır yazılıdır).
+#
+# Not: Servis adları başka biri tarafından alınmışsa Render adrese ek uzantı
+# koyar; o durumda aşağıdaki üç adresi dashboard'daki gerçek adreslerle değiştir.
 #
 # Free planda servisler 15 dk hareketsizlikte uyur; ilk ziyarette ~1 dk içinde
 # uyanır. Veritabanı yoktur (bellek modu): uyanınca AFAD'dan son 6 saat otomatik
@@ -29,16 +32,16 @@ services:
         value: info
       - key: ADMIN_USERNAME
         value: admin
-      # Admin şifresi — Apply sırasında sorulur, kendin belirle
+      # Admin şifresi — Render otomatik üretir; değeri dashboard'da bu servisin
+      # Environment sekmesinden okuyabilir veya değiştirebilirsin
       - key: ADMIN_PASSWORD
-        sync: false
+        generateValue: true
       # Oturum imza anahtarı — Render otomatik üretir
       - key: ADMIN_JWT_SECRET
         generateValue: true
-      # Web servisinin PUBLIC adresi (örn. https://tarih-mimarlik-web.onrender.com)
-      # WebSocket origin kontrolü ve CORS için gerekli — web açıldıktan sonra doldur
+      # Web servisinin PUBLIC adresi — WebSocket origin kontrolü ve CORS için
       - key: WEB_ORIGIN
-        sync: false
+        value: https://tarih-mimarlik-web.onrender.com
 
   # ── Next.js arayüz ─────────────────────────────────────────
   - type: web
@@ -53,10 +56,10 @@ services:
         value: '20'
       - key: NODE_ENV
         value: production
-      # API servisinin PUBLIC adresi (örn. https://tarih-mimarlik-api.onrender.com)
+      # API servisinin PUBLIC adresi (sunucu tarafı /api proxy hedefi)
       - key: API_PROXY_TARGET
-        sync: false
-      # WebSocket adresi (örn. wss://tarih-mimarlik-api.onrender.com/ws)
-      # Boş kalırsa uygulama 30 sn'lik polling moduna düşer — yine çalışır
+        value: https://tarih-mimarlik-api.onrender.com
+      # Tarayıcının WebSocket adresi — yanlış/erişilemez olursa uygulama
+      # 30 sn'lik polling moduna düşer, yine çalışır
       - key: NEXT_PUBLIC_WS_URL
-        sync: false
+        value: wss://tarih-mimarlik-api.onrender.com/ws
