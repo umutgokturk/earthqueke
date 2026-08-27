@@ -1,9 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { afadDateToIso, parseAfadPayload } from '../src/providers/afad.provider';
-import { parseKandilliText } from '../src/providers/kandilli.provider';
+import {
+  KandilliProvider,
+  parseKandilliText,
+  parseKandilliZeqmapXml,
+} from '../src/providers/kandilli.provider';
 import { MockProvider } from '../src/providers/mock.provider';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
@@ -88,6 +92,102 @@ describe('Kandilli provider parser', () => {
     const [b] = parseKandilliText(html);
     expect(a!.sourceEventId).toBe(b!.sourceEventId);
     expect(a!.sourceEventId).toMatch(/^koeri-\d{14}-/);
+  });
+});
+
+describe('Kandilli zeqmap XML parser (yedek uç nokta)', () => {
+  const xml = readFileSync(path.join(fixtures, 'kandilli-zeqmap-sample.xml'), 'utf8');
+
+  it('parses attribute rows, decodes entities and skips broken ones', () => {
+    const reports = parseKandilliZeqmapXml(xml);
+    expect(reports).toHaveLength(3);
+    const first = reports[0]!;
+    expect(first.source).toBe('KANDILLI');
+    expect(first.latitude).toBeCloseTo(40.812);
+    expect(first.magnitude).toBeCloseTo(2.0);
+    expect(first.magnitudeType).toBe('ML');
+    expect(first.depthKm).toBeCloseTo(12.4);
+    expect(first.location).toBe('MARMARA DENIZI - SILIVRI ACIKLARI (ISTANBUL)');
+    expect(first.dataClass).toBe('live');
+  });
+
+  it('converts Turkey local time (UTC+3) to UTC', () => {
+    expect(parseKandilliZeqmapXml(xml)[0]!.occurredAt).toBe('2026-08-27T09:15:30.000Z');
+  });
+
+  it('strips REVIZE markers from locations', () => {
+    expect(parseKandilliZeqmapXml(xml)[1]!.location).toBe('ADALAR ACIKLARI (MARMARA DENIZI)');
+  });
+
+  it('applies the bbox filter (drops the Aegean event)', () => {
+    const reports = parseKandilliZeqmapXml(xml, {
+      bbox: { minLat: 39.8, maxLat: 41.6, minLon: 26.0, maxLon: 30.5 },
+    });
+    expect(reports).toHaveLength(2);
+  });
+
+  it('derives the same deterministic id scheme as the lst0 parser', () => {
+    expect(parseKandilliZeqmapXml(xml)[0]!.sourceEventId).toBe('koeri-20260827121530-40.8120-28.1230');
+  });
+});
+
+describe('Kandilli provider endpoint failover', () => {
+  const opts = {
+    bbox: { minLat: 39.8, maxLat: 41.6, minLon: 26.0, maxLon: 30.5 },
+    windowMs: 6 * 60 * 60 * 1000,
+    timeoutMs: 5000,
+  };
+  const PRIMARY = 'https://www.koeri.boun.edu.tr/scripts/lst0.asp';
+
+  function connectTimeoutError(): Error {
+    const err = new TypeError('fetch failed');
+    (err as Error & { cause?: unknown }).cause = { code: 'UND_ERR_CONNECT_TIMEOUT' };
+    return err;
+  }
+
+  function freshXml(): string {
+    const t = new Date(Date.now() + 3 * 60 * 60 * 1000 - 60_000); // 1 dk önce, TR yerel saati
+    const p = (n: number) => String(n).padStart(2, '0');
+    const name = `${t.getUTCFullYear()}.${p(t.getUTCMonth() + 1)}.${p(t.getUTCDate())} ${p(
+      t.getUTCHours(),
+    )}:${p(t.getUTCMinutes())}:${p(t.getUTCSeconds())}`;
+    return `<?xml version="1.0" encoding="UTF-8"?><eqlist><earhquake name="${name}" lokasyon="MARMARA DENIZI &#304;lksel" lat="40.8500" lng="28.4000" mag="2.2" Depth="8.0" /></eqlist>`;
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('falls back to the udim zeqmap feed when www.koeri is unreachable', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(connectTimeoutError())
+      .mockResolvedValueOnce(new Response(freshXml(), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    const provider = new KandilliProvider(PRIMARY, opts);
+    const reports = await provider.getLatestEarthquakes();
+    expect(reports).toHaveLength(1);
+    expect(reports[0]!.source).toBe('KANDILLI');
+    expect(reports[0]!.location).toBe('MARMARA DENIZI');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[1]![0])).toContain('udim.koeri.boun.edu.tr');
+  });
+
+  it('reports every failed endpoint when all of them are down', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(connectTimeoutError()));
+    const provider = new KandilliProvider(PRIMARY, opts);
+    await expect(provider.getLatestEarthquakes()).rejects.toThrow(
+      /www\.koeri\.boun\.edu\.tr \(UND_ERR_CONNECT_TIMEOUT\).*udim\.koeri\.boun\.edu\.tr/,
+    );
+  });
+
+  it('surfaces upstream HTTP errors per endpoint', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('erisim engellendi', { status: 403 })),
+    );
+    const provider = new KandilliProvider(PRIMARY, opts);
+    await expect(provider.getLatestEarthquakes()).rejects.toThrow(/HTTP 403/);
   });
 });
 

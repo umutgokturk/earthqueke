@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eqlist>
+<earhquake name="2026.08.27 12:15:30" lokasyon="MARMARA DENIZI - SILIVRI ACIKLARI (ISTANBUL) &#304;lksel" lat="40.8120" lng="28.1230" mag="2.0" Depth="12.4" />
+<earhquake name="2026.08.27 11:02:11" lokasyon="ADALAR ACIKLARI (MARMARA DENIZI) REVIZE01 (2026.08.27 11:30)" lat="40.8700" lng="28.9800" mag="3.3" Depth="7.9" />
+<earhquake name="2026.08.27 10:00:00" lokasyon="EGE DENIZI &#304;lksel" lat="38.1000" lng="26.2000" mag="2.8" Depth="10.0" />
+<earhquake name="bozuk tarih" lokasyon="GECERSIZ SATIR" lat="40.9000" lng="28.0000" mag="2.0" Depth="5.0" />
+<earhquake name="2026.08.27 09:00:00" lokasyon="OLCUM YOK" lat="" lng="28.5000" mag="2.0" Depth="5.0" />
+<earhquake name="2026.08.27 08:30:00" lokasyon="BUYUKLUK YOK" lat="40.9000" lng="28.5000" mag="-.-" Depth="5.0" />
+</eqlist>
