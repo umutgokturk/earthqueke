@@ -1,10 +1,12 @@
 import { loadEnv } from '@ils/config';
+import { loadDotEnv } from '@ils/config/dotenv';
 import { createBus, createCache, createStore } from '@ils/database';
 import { createIngestionEngine, type IngestionEngine } from '@ils/worker';
 import pino from 'pino';
 import { buildServer } from './server';
 
 async function main(): Promise<void> {
+  loadDotEnv(); // repo-root .env (real environment variables win)
   const env = loadEnv();
   const store = createStore(env);
   const cache = createCache(env.REDIS_URL);
