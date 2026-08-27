@@ -21,8 +21,8 @@
     "test:e2e": "playwright test",
     "lint": "eslint \"apps/api/src/**/*.ts\" \"apps/worker/src/**/*.ts\" \"packages/*/src/**/*.ts\" && npm run lint -w @ils/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "db:migrate": "tsx packages/database/src/migrate.ts",
-    "db:seed": "tsx packages/database/src/seed.ts"
+    "db:migrate": "tsx packages/database/src/migrate-cli.ts",
+    "db:seed": "tsx packages/database/src/seed-cli.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",

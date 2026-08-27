@@ -61,8 +61,8 @@ function resolveMigrationsDir(): string {
   throw new Error(`Migrations directory not found. Tried: ${candidates.join(', ')}`);
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${path.resolve(process.argv[1])}`).href;
-if (isMain) {
+/** CLI wrapper — separate entry so bundlers never trigger it as a side effect. */
+export function migrateCliMain(): void {
   const url = process.env.DATABASE_URL;
   if (!url) {
     console.error('DATABASE_URL is not set — nothing to migrate (memory mode needs no migrations).');

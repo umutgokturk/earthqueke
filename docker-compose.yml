@@ -1,0 +1,96 @@
+# İSTANBUL LIVE SEISMIC — full production-style stack
+#   docker compose up -d --build
+# Services: postgres (PostGIS), redis, api (REST+WS), worker (ingestion), web (Next.js)
+# The api container applies migrations + registry seed on boot.
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    environment:
+      POSTGRES_USER: ils
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ils}
+      POSTGRES_DB: ils
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ils -d ils']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:7-alpine
+    command: ['redis-server', '--appendonly', 'no', '--maxmemory', '256mb', '--maxmemory-policy', 'allkeys-lru']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    ports:
+      - '6379:6379'
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      DATABASE_URL: postgres://ils:${POSTGRES_PASSWORD:-ils}@postgres:5432/ils
+      REDIS_URL: redis://redis:6379
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+      EMBEDDED_INGESTION: 'false'
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:?set ADMIN_JWT_SECRET in .env}
+      AFAD_API_URL: ${AFAD_API_URL:-https://deprem.afad.gov.tr/apiv2}
+      KANDILLI_API_URL: ${KANDILLI_API_URL:-https://www.koeri.boun.edu.tr/scripts/lst0.asp}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - '4000:4000'
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://ils:${POSTGRES_PASSWORD:-ils}@postgres:5432/ils
+      REDIS_URL: redis://redis:6379
+      INGESTION_INTERVAL_MS: ${INGESTION_INTERVAL_MS:-20000}
+      AFAD_API_URL: ${AFAD_API_URL:-https://deprem.afad.gov.tr/apiv2}
+      KANDILLI_API_URL: ${KANDILLI_API_URL:-https://www.koeri.boun.edu.tr/scripts/lst0.asp}
+    depends_on:
+      api:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      args:
+        # Browser-facing WebSocket endpoint (host-mapped api port)
+        NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:4000/ws}
+        NEXT_PUBLIC_MAPTILER_KEY: ${NEXT_PUBLIC_MAPTILER_KEY:-}
+    environment:
+      API_PROXY_TARGET: http://api:4000
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - '3000:3000'
+
+volumes:
+  pgdata:

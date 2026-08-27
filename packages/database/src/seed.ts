@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { createPool } from './pool';
 import { PgStore } from './pg-store';
 import { generateSyntheticHistory } from './synthetic';
@@ -53,8 +52,8 @@ export async function runSeed(
   await pool.end();
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${path.resolve(process.argv[1])}`).href;
-if (isMain) {
+/** CLI wrapper — separate entry so bundlers never trigger it as a side effect. */
+export function seedCliMain(): void {
   const url = process.env.DATABASE_URL;
   if (!url) {
     console.error('DATABASE_URL is not set — the in-memory dev store seeds itself at API startup.');

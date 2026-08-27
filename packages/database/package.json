@@ -11,8 +11,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsup",
-    "migrate": "tsx src/migrate.ts",
-    "seed": "tsx src/seed.ts"
+    "migrate": "tsx src/migrate-cli.ts",
+    "seed": "tsx src/seed-cli.ts"
   },
   "dependencies": {
     "@ils/config": "*",
