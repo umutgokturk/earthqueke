@@ -13,7 +13,7 @@ html {
 body {
   background:
     radial-gradient(1400px 560px at 62% -14%, rgba(34, 211, 238, 0.09), transparent 62%),
-    radial-gradient(760px 420px at 96% -6%, rgba(245, 158, 11, 0.06), transparent 60%),
+    radial-gradient(760px 420px at 96% -6%, rgba(96, 165, 250, 0.07), transparent 60%),
     radial-gradient(900px 460px at 4% 112%, rgba(139, 92, 246, 0.06), transparent 60%),
     #060a12;
   color: #e8eef7;

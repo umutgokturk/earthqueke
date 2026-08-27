@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Hakkında',
   description:
-    'Tarih Mimarlık deprem izleme panelinin veri kaynakları, yöntemleri, sınırları ve sorumluluk reddi.',
+    'Mesnet Mühendislik deprem izleme panelinin veri kaynakları, yöntemleri, sınırları ve sorumluluk reddi.',
 };
 
 const sectionCls = 'rounded-lg border border-line bg-ink-800/80 p-5';
@@ -16,7 +16,7 @@ export default function AboutPage() {
       <section className={sectionCls}>
         <h2 className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">Bu panel nedir?</h2>
         <p className="text-sm leading-relaxed text-txt-soft">
-          TARİH MİMARLIK deprem izleme paneli, İstanbul ve Marmara çevresindeki güncel deprem hareketlerini gerçek
+          MESNET MÜHENDİSLİK deprem izleme paneli, İstanbul ve Marmara çevresindeki güncel deprem hareketlerini gerçek
           zamanlı izleyen, harita üzerinde gösteren, fay segmentlerini görselleştiren ve geçmiş verileri analiz eden
           bir izleme panelidir.
         </p>

@@ -44,10 +44,17 @@ export function Nav() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <GlobalSearch />
-          <NotifySettings />
-          <LiveIndicator />
+          <div className="hidden sm:block">
+            <NotifySettings />
+          </div>
+          <div className="hidden sm:block">
+            <LiveIndicator />
+          </div>
+          <div className="sm:hidden">
+            <LiveIndicator dotOnly />
+          </div>
           <button
             className="rounded-full border border-line p-2 text-txt-soft transition-colors hover:border-line-strong hover:text-txt lg:hidden"
             aria-label="Menüyü aç/kapat"
@@ -63,6 +70,10 @@ export function Nav() {
 
       {open && (
         <nav aria-label="Mobil menü" className="border-t border-line px-4 py-2 lg:hidden">
+          <div className="flex items-center justify-between gap-2 px-1 py-2 sm:hidden">
+            <LiveIndicator />
+            <NotifySettings />
+          </div>
           <div className="grid grid-cols-2 gap-1">
             {[...LINKS, { href: '/api-status', label: 'API DURUMU' }, { href: '/about', label: 'HAKKINDA' }].map((link) => (
               <Link

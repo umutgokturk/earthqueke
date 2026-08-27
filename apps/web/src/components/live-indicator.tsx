@@ -9,7 +9,14 @@ import { useLiveStore } from '@/stores/live-store';
  * The dot reflects seconds since the last server signal; connection mode is
  * shown alongside when we are on the polling fallback.
  */
-export function LiveIndicator({ compact = false }: { compact?: boolean }) {
+export function LiveIndicator({
+  compact = false,
+  dotOnly = false,
+}: {
+  compact?: boolean;
+  /** Dar ekranlar için: yalnızca nokta; durum metni aria-label/title ile taşınır. */
+  dotOnly?: boolean;
+}) {
   const lastMessageAt = useLiveStore((s) => s.lastMessageAt);
   const connection = useLiveStore((s) => s.connection);
   const [, tick] = useState(0);
@@ -36,6 +43,23 @@ export function LiveIndicator({ compact = false }: { compact?: boolean }) {
       : seconds < 60
         ? `${seconds} sn önce güncellendi`
         : `${Math.floor(seconds / 60)} dk önce güncellendi`;
+
+  if (dotOnly) {
+    return (
+      <div
+        role="status"
+        aria-label={`Veri durumu: ${state} — ${label}`}
+        title={`${state} — ${label}`}
+        className="flex items-center rounded-full border border-line bg-ink-800/70 p-2"
+      >
+        <span
+          aria-hidden
+          className="h-2.5 w-2.5 animate-pulse-dot rounded-full"
+          style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div
