@@ -36,10 +36,10 @@ export function GlobalSearch() {
         onFocus={() => setOpen(true)}
         placeholder="Ara: konum, ilçe, fay, ID…"
         aria-label="Global arama"
-        className="w-52 rounded-md border border-line bg-ink-800 px-3 py-1.5 text-xs text-txt placeholder:text-txt-mute focus:border-accent/60 focus:outline-none"
+        className="w-52 rounded-full border border-line bg-ink-800/80 px-3.5 py-1.5 text-xs text-txt transition-colors placeholder:text-txt-mute focus:border-accent/60 focus:outline-none"
       />
       {open && q.trim().length >= 2 && (
-        <div className="absolute right-0 top-full z-50 mt-1 max-h-96 w-80 overflow-auto rounded-lg border border-line bg-ink-700 p-2 shadow-panel">
+        <div className="absolute right-0 top-full z-50 mt-2 max-h-96 w-80 overflow-auto rounded-xl border border-line bg-ink-700/95 p-2 shadow-float backdrop-blur-md">
           {isFetching && !data ? (
             <p className="px-2 py-3 text-xs text-txt-mute">Aranıyor…</p>
           ) : !hasResults ? (
