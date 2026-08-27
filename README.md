@@ -107,6 +107,27 @@ npm run db:migrate   # SQL migration'ları uygula
 npm run db:seed      # fay/bölge/kaynak seed (+ dev'de sentetik geçmiş; --force, --no-history)
 ```
 
+## Ücretsiz Yayın (Render.com)
+
+Repo kökündeki [`render.yaml`](./render.yaml) blueprint'i iki ücretsiz servis kurar: API (+gömülü veri
+toplama) ve Next.js arayüz. Veritabanı gerekmez (bellek modu).
+
+1. [render.com](https://render.com) hesabı aç → **New → Blueprint** → bu GitHub repo'sunu seç → **Apply**.
+   Apply sırasında sorulan `ADMIN_PASSWORD` için kendine bir admin şifresi belirle; diğer boş alanları
+   şimdilik geç.
+2. İki servis kurulunca adreslerini kopyala (örn. `https://tarih-mimarlik-api.onrender.com` ve
+   `https://tarih-mimarlik-web.onrender.com`).
+3. **web** servisinin Environment ayarına şunları yaz (kaydedince kendini yeniden kurar):
+   - `API_PROXY_TARGET` = API adresi (`https://…-api.onrender.com`)
+   - `NEXT_PUBLIC_WS_URL` = `wss://…-api.onrender.com/ws`
+4. **api** servisinin Environment ayarına: `WEB_ORIGIN` = web adresi (`https://…-web.onrender.com`).
+5. Web adresini aç — panel yayında.
+
+Notlar: Free planda 15 dk ziyaret olmazsa servisler uyur; ilk ziyaretçi ~1 dk bekler. Uyanınca AFAD'dan
+son 6 saat otomatik geri çekilir. `NEXT_PUBLIC_WS_URL` ayarlanana kadar canlı akış 30 sn'lik polling ile
+çalışır (adım 3 sonrası gerçek zamanlı olur). Kalıcı veritabanı ve 7/24 çalışma istersen `docker-compose`
+yığınını ücretsiz bir Oracle Cloud "Always Free" sunucusuna kurabilirsin.
+
 ## Portları Değiştirme
 
 Portlar kök dizindeki `.env` dosyasından okunur — tek yerden, kalıcı:
