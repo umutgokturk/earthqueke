@@ -1,0 +1,28 @@
+{
+  "name": "@ils/worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/lib.ts",
+  "types": "./src/lib.ts",
+  "exports": {
+    ".": "./src/lib.ts"
+  },
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsup",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ils/config": "*",
+    "@ils/database": "*",
+    "@ils/gis": "*",
+    "@ils/types": "*",
+    "pino": "^9.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "istanbul-live-seismic",
+  "private": true,
+  "version": "1.0.0",
+  "description": "İSTANBUL LIVE SEISMIC — İstanbul'un canlı sismik hareketlerini izleyin.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev -w @ils/api\" \"npm run dev -w @ils/web\"",
+    "dev:full": "concurrently -n api,worker,web -c cyan,yellow,magenta \"npm run dev -w @ils/api\" \"npm run dev -w @ils/worker\" \"npm run dev -w @ils/web\"",
+    "build": "npm run build -w @ils/database -w @ils/api -w @ils/worker -w @ils/web",
+    "start": "concurrently -n api,web -c cyan,magenta \"npm run start -w @ils/api\" \"npm run start -w @ils/web\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "lint": "eslint \"apps/api/src/**/*.ts\" \"apps/worker/src/**/*.ts\" \"packages/*/src/**/*.ts\" && npm run lint -w @ils/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "db:migrate": "tsx packages/database/src/migrate-cli.ts",
+    "db:seed": "tsx packages/database/src/seed-cli.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^20.17.10",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "concurrently": "^9.1.0",
+    "eslint": "^8.57.1",
+    "tsx": "^4.19.2",
+    "typescript": "~5.5.4",
+    "vitest": "^2.1.8"
+  }
+}
