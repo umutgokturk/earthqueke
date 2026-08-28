@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import type { HTMLAttributes, ReactNode } from 'react';
-import { MAG_COLORS, STATUS_COLORS, magColor } from './tokens';
+import { MAG_COLORS, STATUS_COLORS, magStep } from './tokens';
 
 /* Reusable presentational atoms (Tailwind classes resolved by the app build). */
 
@@ -60,14 +60,18 @@ export function StatusDot({
 
 /** Magnitude chip — the numeric value is always printed (never color alone). */
 export function MagnitudeBadge({ magnitude, className }: { magnitude: number; className?: string }): ReactNode {
-  const color = magColor(magnitude);
+  const step = magStep(magnitude);
   return (
     <span
       className={clsx(
         'inline-flex min-w-[52px] items-center justify-center rounded-md border px-1.5 py-0.5 font-mono text-xs font-bold tabular-nums',
         className,
       )}
-      style={{ color, borderColor: `${color}55`, backgroundColor: `${color}1a` }}
+      style={{
+        color: step.color,
+        borderColor: `rgb(var(${step.rgbVar}) / 0.4)`,
+        backgroundColor: `rgb(var(${step.rgbVar}) / 0.12)`,
+      }}
       aria-label={`Büyüklük ${magnitude.toFixed(1)}`}
     >
       M{magnitude.toFixed(1)}

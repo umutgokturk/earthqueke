@@ -47,12 +47,12 @@ export function SourceStatusPanel({ compact = false }: { compact?: boolean }) {
                   style={{
                     color:
                       source.status === 'ONLINE'
-                        ? '#34D399'
+                        ? 'rgb(var(--status-good))'
                         : source.status === 'DEGRADED'
-                          ? '#FBBF24'
+                          ? 'rgb(var(--status-warn))'
                           : source.status === 'OFFLINE'
-                            ? '#F87171'
-                            : '#64748B',
+                            ? 'rgb(var(--status-bad))'
+                            : 'rgb(var(--txt-mute))',
                   }}
                 >
                   {HEALTH_LABEL[source.status]}

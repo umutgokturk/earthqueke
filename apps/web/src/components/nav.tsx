@@ -8,6 +8,7 @@ import { BrandMark } from './brand';
 import { LiveIndicator } from './live-indicator';
 import { GlobalSearch } from './global-search';
 import { NotifySettings } from './notify-settings';
+import { ThemeToggle } from './theme-toggle';
 
 const LINKS = [
   { href: '/live', label: 'CANLI' },
@@ -35,7 +36,7 @@ export function Nav() {
               className={clsx(
                 'rounded-full px-3.5 py-1.5 text-[11px] font-bold tracking-[0.14em] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-accent',
                 pathname.startsWith(link.href)
-                  ? 'bg-accent-soft text-accent ring-1 ring-accent/30 shadow-[0_0_16px_rgba(34,211,238,0.16)]'
+                  ? 'bg-accent-soft text-accent ring-1 ring-accent/30 shadow-[0_0_16px_rgb(var(--accent)/0.16)]'
                   : 'text-txt-soft hover:bg-ink-700/80 hover:text-txt',
               )}
             >
@@ -46,6 +47,9 @@ export function Nav() {
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <GlobalSearch />
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
           <div className="hidden sm:block">
             <NotifySettings />
           </div>
@@ -72,7 +76,10 @@ export function Nav() {
         <nav aria-label="Mobil menü" className="border-t border-line px-4 py-2 lg:hidden">
           <div className="flex items-center justify-between gap-2 px-1 py-2 sm:hidden">
             <LiveIndicator />
-            <NotifySettings />
+            <span className="flex items-center gap-2">
+              <ThemeToggle />
+              <NotifySettings />
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-1">
             {[...LINKS, { href: '/api-status', label: 'API DURUMU' }, { href: '/about', label: 'HAKKINDA' }].map((link) => (

@@ -19,13 +19,34 @@ const HEADERS = [
   'Fay Segmenti',
 ] as const;
 
-function Row({ event, isNew, compact }: { event: Earthquake; isNew: boolean; compact: boolean }) {
+function Row({
+  event,
+  isNew,
+  compact,
+  onSelect,
+}: {
+  event: Earthquake;
+  isNew: boolean;
+  compact: boolean;
+  onSelect?: (id: string) => void;
+}) {
   return (
     <tr
       className={clsx(
         'border-b border-line/50 text-xs transition-colors hover:bg-ink-600/40',
         isNew && 'animate-row-flash',
+        onSelect && 'cursor-pointer',
       )}
+      onClick={
+        onSelect
+          ? (e) => {
+              // bağlantı tıklamaları kendi yoluna gider; satır tıklaması haritayı odaklar
+              if ((e.target as Element).closest('a')) return;
+              onSelect(event.id);
+            }
+          : undefined
+      }
+      title={onSelect ? 'Haritada göster' : undefined}
     >
       <td className="whitespace-nowrap px-3 py-2 font-mono tabular-nums text-txt-soft">
         <Link href={`/earthquakes/${event.id}`} className="hover:text-accent" title={event.occurredAt}>
@@ -77,11 +98,14 @@ export function EarthquakeTable({
   loading = false,
   compact = false,
   emptyMessage = 'Bu zaman aralığında eşleşen deprem bulunamadı.',
+  onSelect,
 }: {
   events: Earthquake[] | undefined;
   loading?: boolean;
   compact?: boolean;
   emptyMessage?: string;
+  /** Verilirse satır tıklaması olayı seçer (pano: haritada gösterir). */
+  onSelect?: (id: string) => void;
 }) {
   const seenIds = useRef<Set<string>>(new Set());
   const [newIds, setNewIds] = useState<Set<string>>(new Set());
@@ -129,7 +153,7 @@ export function EarthquakeTable({
                 </tr>
               ))
             : (events ?? []).map((event) => (
-                <Row key={event.id} event={event} isNew={newIds.has(event.id)} compact={compact} />
+                <Row key={event.id} event={event} isNew={newIds.has(event.id)} compact={compact} onSelect={onSelect} />
               ))}
         </tbody>
       </table>

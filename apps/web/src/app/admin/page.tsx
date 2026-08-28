@@ -81,7 +81,7 @@ export default function AdminDashboardPage() {
               <div key={r.id} className="flex items-center gap-3 px-4 py-2 text-xs">
                 <span
                   className="w-16 font-bold"
-                  style={{ color: r.status === 'SUCCESS' ? '#34D399' : r.status === 'ERROR' ? '#F87171' : '#FBBF24' }}
+                  style={{ color: r.status === 'SUCCESS' ? 'rgb(var(--status-good))' : r.status === 'ERROR' ? 'rgb(var(--status-bad))' : 'rgb(var(--status-warn))' }}
                 >
                   {r.status}
                 </span>

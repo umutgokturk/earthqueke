@@ -32,7 +32,7 @@ export function MapLegend({ className }: { className?: string }) {
       </div>
       <div className="mt-2 space-y-1 border-t border-line pt-2 text-txt-soft">
         <div className="flex items-center gap-2">
-          <span aria-hidden className="h-0 w-5 border-t-2 border-dashed" style={{ borderColor: '#EF6A6A' }} />
+          <span aria-hidden className="h-0 w-5 border-t-2 border-dashed" style={{ borderColor: 'rgb(var(--status-bad))' }} />
           Fay segmenti (yaklaşık geometri)
         </div>
         <div className="flex items-center gap-2">

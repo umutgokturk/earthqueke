@@ -75,7 +75,7 @@ export function NotifySettings() {
               type="checkbox"
               checked={soundOn}
               onChange={(e) => setSoundOn(e.target.checked)}
-              className="h-4 w-4 accent-[#22D3EE]"
+              className="h-4 w-4 accent-[rgb(var(--accent))]"
             />
           </label>
           <p className="mt-2 text-[10px] leading-relaxed text-txt-mute">

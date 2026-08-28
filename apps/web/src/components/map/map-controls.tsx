@@ -28,7 +28,7 @@ export function MapControls({ className }: { className?: string }) {
               type="checkbox"
               checked={state[layer.key]}
               onChange={() => state.toggle(layer.key)}
-              className="h-3.5 w-3.5 accent-[#22D3EE]"
+              className="h-3.5 w-3.5 accent-[rgb(var(--accent))]"
             />
             {layer.label}
           </label>

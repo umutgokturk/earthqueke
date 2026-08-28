@@ -36,7 +36,14 @@ export function LiveIndicator({
           ? 'DELAYED'
           : 'STALE';
 
-  const color = state === 'LIVE' ? '#34D399' : state === 'DELAYED' ? '#FBBF24' : state === 'STALE' ? '#F87171' : '#64748B';
+  const color =
+    state === 'LIVE'
+      ? 'rgb(var(--status-good))'
+      : state === 'DELAYED'
+        ? 'rgb(var(--status-warn))'
+        : state === 'STALE'
+          ? 'rgb(var(--status-bad))'
+          : 'rgb(var(--txt-mute))';
   const label =
     seconds === null
       ? 'bağlanıyor…'
