@@ -99,9 +99,10 @@ export function DataClassBadge({ dataClass, className }: { dataClass: string; cl
         'inline-flex items-center rounded border border-status-warn/60 bg-status-warn/10 px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-status-warn',
         className,
       )}
-      title="Bu kayıt geliştirme ortamı için üretilmiş sentetik veridir; gerçek deprem verisi değildir."
+      title="DEVELOPMENT DATA — Bu kayıt geliştirme ortamı için üretilmiş sentetik veridir; gerçek deprem verisi değildir."
+      aria-label="Geliştirme verisi — gerçek deprem verisi değildir"
     >
-      DEVELOPMENT DATA
+      DEV
     </span>
   );
 }
