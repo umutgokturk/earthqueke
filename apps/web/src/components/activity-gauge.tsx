@@ -25,7 +25,7 @@ export function ActivityMini({ snapshot }: { snapshot: ActivitySnapshot }) {
   );
 }
 
-function GaugeRow({ snapshot }: { snapshot: ActivitySnapshot }) {
+function GaugeRow({ snapshot, detailed }: { snapshot: ActivitySnapshot; detailed: boolean }) {
   const meta = ACTIVITY_LEVEL_META[snapshot.level] ?? ACTIVITY_LEVEL_META.LOW!;
   const regionLabel =
     snapshot.region === 'istanbul' ? 'İstanbul' : snapshot.region === 'marmara' ? 'Marmara' : 'Tüm Bölge';
@@ -46,28 +46,34 @@ function GaugeRow({ snapshot }: { snapshot: ActivitySnapshot }) {
           style={{ width: `${Math.min(100, snapshot.score)}%`, backgroundColor: meta.color }}
         />
       </div>
-      <div className="mt-2 grid grid-cols-5 gap-1 text-center">
-        {(
-          [
-            ['Sıklık', snapshot.components.frequency],
-            ['Büyüklük', snapshot.components.magnitude],
-            ['Güncellik', snapshot.components.recency],
-            ['Kümelenme', snapshot.components.clustering],
-            ['Derinlik', snapshot.components.depth],
-          ] as const
-        ).map(([label, value]) => (
-          <div key={label} className="rounded bg-ink-700/70 px-1 py-1">
-            <p className="text-[9px] text-txt-mute">{label}</p>
-            <p className="text-[11px] font-semibold tabular-nums text-txt-soft">{Math.round(value)}</p>
-          </div>
-        ))}
-      </div>
+      {detailed && (
+        <div className="mt-2 grid grid-cols-5 gap-1 text-center">
+          {(
+            [
+              ['Sıklık', snapshot.components.frequency],
+              ['Büyüklük', snapshot.components.magnitude],
+              ['Güncellik', snapshot.components.recency],
+              ['Kümelenme', snapshot.components.clustering],
+              ['Derinlik', snapshot.components.depth],
+            ] as const
+          ).map(([label, value]) => (
+            <div key={label} className="rounded bg-ink-700/70 px-1 py-1">
+              <p className="text-[9px] text-txt-mute">{label}</p>
+              <p className="text-[11px] font-semibold tabular-nums text-txt-soft">{Math.round(value)}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-/** Full activity panel with the mandatory disclaimer (spec §29). */
-export function ActivityPanel() {
+/**
+ * Full activity panel with the mandatory disclaimer (spec §29).
+ * Dashboard shows the calm summary; `detailed` (analytics) adds the
+ * five component scores per region.
+ */
+export function ActivityPanel({ detailed = false }: { detailed?: boolean }) {
   const { data, isLoading } = useActivity();
   return (
     <Card>
@@ -82,7 +88,7 @@ export function ActivityPanel() {
           {[...data]
             .sort((a, b) => (a.region === 'istanbul' ? -1 : b.region === 'istanbul' ? 1 : a.region.localeCompare(b.region)))
             .map((snap) => (
-              <GaugeRow key={snap.region} snapshot={snap} />
+              <GaugeRow key={snap.region} snapshot={snap} detailed={detailed} />
             ))}
         </div>
       )}

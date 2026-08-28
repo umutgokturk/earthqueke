@@ -116,7 +116,7 @@ export function AnalyticsClient() {
           >
             <ActivityTimelineChart data={activityTl.data ?? []} height={230} />
           </ChartCard>
-          <ActivityPanel />
+          <ActivityPanel detailed />
         </div>
       )}
 
