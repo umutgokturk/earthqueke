@@ -18,10 +18,10 @@ interface LogRow {
 
 const LEVELS = ['', 'DEBUG', 'INFO', 'WARN', 'ERROR'] as const;
 const LEVEL_COLOR: Record<string, string> = {
-  DEBUG: '#64748B',
-  INFO: '#34D399',
-  WARN: '#FBBF24',
-  ERROR: '#F87171',
+  DEBUG: 'rgb(var(--txt-mute))',
+  INFO: 'rgb(var(--status-good))',
+  WARN: 'rgb(var(--status-warn))',
+  ERROR: 'rgb(var(--status-bad))',
 };
 
 export default function AdminSystemPage() {
@@ -67,7 +67,7 @@ export default function AdminSystemPage() {
           {data.map((row) => (
             <div key={row.id} className="flex gap-3 border-b border-line/50 px-4 py-1.5 hover:bg-ink-700/40">
               <span className="shrink-0 tabular-nums text-txt-mute">{fmtDateTime(row.at)}</span>
-              <span className="w-12 shrink-0 font-bold" style={{ color: LEVEL_COLOR[row.level] ?? '#94A3B8' }}>
+              <span className="w-12 shrink-0 font-bold" style={{ color: LEVEL_COLOR[row.level] ?? 'rgb(var(--txt-soft))' }}>
                 {row.level}
               </span>
               <span className="w-24 shrink-0 text-txt-mute">{row.service}</span>

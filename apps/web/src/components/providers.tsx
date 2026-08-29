@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { LiveProvider } from './live-provider';
+import { ThemeApplier } from './theme-toggle';
 import { Toaster } from './toaster';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
   return (
     <QueryClientProvider client={client}>
+      <ThemeApplier />
       <LiveProvider>
         {children}
         <Toaster />

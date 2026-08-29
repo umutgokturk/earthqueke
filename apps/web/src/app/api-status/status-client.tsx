@@ -25,7 +25,7 @@ function StatusCard({
         <p className="text-sm font-bold text-txt">{name}</p>
         <span
           className="ml-auto text-[10px] font-bold tracking-widest"
-          style={{ color: ok === true ? '#34D399' : ok === 'warn' ? '#FBBF24' : '#F87171' }}
+          style={{ color: ok === true ? 'rgb(var(--status-good))' : ok === 'warn' ? 'rgb(var(--status-warn))' : 'rgb(var(--status-bad))' }}
         >
           {statusText}
         </span>

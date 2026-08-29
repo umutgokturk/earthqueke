@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl, { Map as MlMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { Card, CardHeader, DataClassBadge, EmptyState, MagnitudeBadge, Skeleton, SourceBadge } from '@ils/ui';
+import { Card, CardHeader, DataClassBadge, EmptyState, MAP_THEME, MagnitudeBadge, Skeleton, SourceBadge } from '@ils/ui';
 import { ChartCard, TimeMagScatter } from '@/components/charts';
 import { EarthquakeTable } from '@/components/earthquake-table';
 import { fmtCoord, fmtDate, fmtDepth, fmtKm, fmtMag, fmtTime } from '@/lib/format';
 import { useEarthquake, useFaults, useNearby } from '@/lib/queries';
+import { distanceKm, useLocationStore } from '@/stores/location-store';
+import { useThemeStore } from '@/stores/theme-store';
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -24,6 +26,8 @@ function DetailMap({ lat, lon, faultSlug }: { lat: number; lon: number; faultSlu
   const ref = useRef<HTMLDivElement>(null);
   const { data: faults } = useFaults();
   const [failed, setFailed] = useState(false);
+  const theme = useThemeStore((s) => s.theme);
+  const mt = MAP_THEME[theme];
 
   useEffect(() => {
     if (!ref.current) return;
@@ -36,13 +40,13 @@ function DetailMap({ lat, lon, faultSlug }: { lat: number; lon: number; faultSlu
           sources: {
             carto: {
               type: 'raster',
-              tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],
+              tiles: [`https://a.basemaps.cartocdn.com/${mt.rasterPath}/{z}/{x}/{y}@2x.png`],
               tileSize: 256,
               attribution: '© OpenStreetMap contributors © CARTO',
             },
           },
           layers: [
-            { id: 'bg', type: 'background', paint: { 'background-color': '#060A12' } },
+            { id: 'bg', type: 'background', paint: { 'background-color': mt.background } },
             { id: 'carto', type: 'raster', source: 'carto' },
           ],
         },
@@ -69,7 +73,7 @@ function DetailMap({ lat, lon, faultSlug }: { lat: number; lon: number; faultSlu
           id: 'fault',
           type: 'line',
           source: 'fault',
-          paint: { 'line-color': '#EF6A6A', 'line-width': 2, 'line-dasharray': [2, 1.5] },
+          paint: { 'line-color': mt.faultLine, 'line-width': 2, 'line-dasharray': [2, 1.5] },
         });
       }
       map.addSource('event', {
@@ -82,22 +86,61 @@ function DetailMap({ lat, lon, faultSlug }: { lat: number; lon: number; faultSlu
         source: 'event',
         paint: {
           'circle-radius': 9,
-          'circle-color': '#7DEBFF',
-          'circle-stroke-color': '#060A12',
+          'circle-color': mt.pulse,
+          'circle-stroke-color': mt.casing,
           'circle-stroke-width': 2,
         },
       });
     });
     return () => map.remove();
-  }, [lat, lon, faultSlug, faults]);
+  }, [lat, lon, faultSlug, faults, mt]);
 
   if (failed) return <EmptyState title="Harita servisi kullanılamıyor." className="h-full" />;
   return <div ref={ref} className="h-full w-full" role="img" aria-label="Deprem konumu haritası" />;
 }
 
+/** Paylaş: varsa sistem paylaşımı, yoksa bağlantıyı panoya kopyalar. */
+function ShareButton({ title }: { title: string }) {
+  const [copied, setCopied] = useState(false);
+  const share = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* kullanıcı paylaşımı iptal etti — sessiz geç */
+    }
+  };
+  return (
+    <button
+      onClick={share}
+      className="ml-auto flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-[11px] font-semibold text-txt-soft transition-colors hover:border-line-strong hover:text-txt"
+      title="Bu kaydın bağlantısını paylaş"
+    >
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden>
+        <path
+          d="M12 5.5a2 2 0 1 0-1.9-2.6L6 5a2 2 0 1 0 0 3l4.1 2.1A2 2 0 1 0 12 10.5a2 2 0 0 0-1.4.6L6.5 9a2 2 0 0 0 0-1l4.1-2.1c.36.37.86.6 1.4.6Z"
+          fill="currentColor"
+        />
+      </svg>
+      {copied ? 'Kopyalandı ✓' : 'Paylaş'}
+    </button>
+  );
+}
+
 export function EarthquakeDetailClient({ id }: { id: string }) {
   const { data: event, isLoading, error } = useEarthquake(id);
   const { data: nearby, isLoading: nearbyLoading } = useNearby(event?.id);
+  const userCoords = useLocationStore((s) => s.coords);
+  const userDistanceKm =
+    event && userCoords
+      ? distanceKm(userCoords.latitude, userCoords.longitude, event.latitude, event.longitude)
+      : null;
 
   const nearbyScatter = useMemo(
     () =>
@@ -133,6 +176,7 @@ export function EarthquakeDetailClient({ id }: { id: string }) {
         <MagnitudeBadge magnitude={event.magnitude} className="scale-125" />
         <h1 className="text-lg font-bold text-txt">{event.location}</h1>
         <DataClassBadge dataClass={event.dataClass} />
+        <ShareButton title={`M${fmtMag(event.magnitude)} — ${event.location}`} />
       </div>
 
       <div className="grid gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
@@ -153,6 +197,7 @@ export function EarthquakeDetailClient({ id }: { id: string }) {
         <Field label="Latitude" value={fmtCoord(event.latitude)} />
         <Field label="Longitude" value={fmtCoord(event.longitude)} />
         <Field label="Istanbul Distance" value={fmtKm(event.istanbulDistanceKm)} />
+        {userDistanceKm !== null && <Field label="Konumuna Uzaklık" value={fmtKm(userDistanceKm)} />}
         <Field
           label="Nearest Fault"
           value={

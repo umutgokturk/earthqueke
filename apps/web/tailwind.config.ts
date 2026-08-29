@@ -1,9 +1,9 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * Design system (dark observability dashboard).
- * Chart/series and map colors were validated with the dataviz palette
- * validator against the panel surface #0B1220 (CVD + contrast checks).
+ * Design system — theme-aware via CSS variables (globals.css defines the
+ * light-default and dark palettes). Chart/series and map colors were
+ * validated with the dataviz palette validator on BOTH surfaces.
  */
 const config: Config = {
   content: [
@@ -14,42 +14,42 @@ const config: Config = {
     extend: {
       colors: {
         ink: {
-          950: '#04070D',
-          900: '#060A12',
-          800: '#0B1220',
-          700: '#101A2C',
-          600: '#16233A',
+          950: 'rgb(var(--ink-950) / <alpha-value>)',
+          900: 'rgb(var(--ink-900) / <alpha-value>)',
+          800: 'rgb(var(--ink-800) / <alpha-value>)',
+          700: 'rgb(var(--ink-700) / <alpha-value>)',
+          600: 'rgb(var(--ink-600) / <alpha-value>)',
         },
         line: {
-          DEFAULT: 'rgba(148,163,184,0.14)',
-          strong: 'rgba(148,163,184,0.28)',
+          DEFAULT: 'var(--line)',
+          strong: 'var(--line-strong)',
         },
         txt: {
-          DEFAULT: '#E8EEF7',
-          soft: '#94A3B8',
-          mute: '#64748B',
+          DEFAULT: 'rgb(var(--txt) / <alpha-value>)',
+          soft: 'rgb(var(--txt-soft) / <alpha-value>)',
+          mute: 'rgb(var(--txt-mute) / <alpha-value>)',
         },
         accent: {
-          DEFAULT: '#22D3EE',
-          soft: 'rgba(34,211,238,0.14)',
+          DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+          soft: 'var(--accent-soft)',
         },
         series: {
-          1: '#0899B8',
-          2: '#DE640D',
-          3: '#8B5CF6',
+          1: 'rgb(var(--series-1) / <alpha-value>)',
+          2: 'rgb(var(--series-2) / <alpha-value>)',
+          3: 'rgb(var(--series-3) / <alpha-value>)',
         },
         status: {
-          good: '#34D399',
-          warn: '#FBBF24',
-          serious: '#FB923C',
-          bad: '#F87171',
+          good: 'rgb(var(--status-good) / <alpha-value>)',
+          warn: 'rgb(var(--status-warn) / <alpha-value>)',
+          serious: 'rgb(var(--status-serious) / <alpha-value>)',
+          bad: 'rgb(var(--status-bad) / <alpha-value>)',
         },
         mag: {
-          m1: '#38BDF8',
-          m2: '#FACC15',
-          m3: '#FB923C',
-          m4: '#F87171',
-          m5: '#E879F9',
+          m1: 'rgb(var(--mag-m1) / <alpha-value>)',
+          m2: 'rgb(var(--mag-m2) / <alpha-value>)',
+          m3: 'rgb(var(--mag-m3) / <alpha-value>)',
+          m4: 'rgb(var(--mag-m4) / <alpha-value>)',
+          m5: 'rgb(var(--mag-m5) / <alpha-value>)',
         },
       },
       fontFamily: {
@@ -64,9 +64,9 @@ const config: Config = {
         '2xl': '22px',
       },
       boxShadow: {
-        panel: '0 1px 0 rgba(255,255,255,0.04) inset, 0 10px 30px rgba(0,0,0,0.35)',
-        float: '0 18px 44px rgba(0,0,0,0.5)',
-        glow: '0 0 18px rgba(34,211,238,0.25)',
+        panel: 'var(--shadow-panel)',
+        float: 'var(--shadow-float)',
+        glow: '0 0 18px rgb(var(--accent) / 0.25)',
       },
       keyframes: {
         'pulse-dot': {
@@ -74,7 +74,7 @@ const config: Config = {
           '50%': { opacity: '0.35' },
         },
         'row-flash': {
-          '0%': { backgroundColor: 'rgba(34,211,238,0.22)' },
+          '0%': { backgroundColor: 'rgb(var(--accent) / 0.22)' },
           '100%': { backgroundColor: 'transparent' },
         },
         'toast-in': {

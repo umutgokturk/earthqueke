@@ -24,15 +24,19 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#060A12',
+  themeColor: '#F5F7FB',
   width: 'device-width',
   initialScale: 1,
 };
 
+/* İlk boyamadan önce kayıtlı temayı uygular — tema titremesini önler. */
+const themeInitScript = `try{var s=localStorage.getItem('ils-theme');var t=s?JSON.parse(s).state.theme:null;document.documentElement.dataset.theme=(t==='dark'?'dark':'light');}catch(e){document.documentElement.dataset.theme='light';}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr">
+    <html lang="tr" data-theme="light">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Inter + Space Grotesk with graceful system fallbacks when the font host is unreachable */}

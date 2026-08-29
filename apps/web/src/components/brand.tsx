@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
-const LINE = '#E8EEF7';
-const BLUE = '#8FB8E8';
-const BLUE_SOFT = 'rgba(143, 184, 232, 0.35)';
+const LINE = 'rgb(var(--logo-line))';
+const BLUE = 'rgb(var(--brand-blue))';
+const BLUE_SOFT = 'rgb(var(--brand-blue) / 0.3)';
 
 /**
  * MESNET MÜHENDİSLİK logo — the structural pin-support mark redrawn as an

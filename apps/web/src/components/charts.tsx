@@ -19,12 +19,12 @@ import type { DistributionBin, ScatterPoint, TimeRange, TimelineBucket } from '@
 import { Card, CardHeader, EmptyState, SERIES, Skeleton } from '@ils/ui';
 import { fmtShort, fmtTime } from '@/lib/format';
 
-/* Validated palette (dataviz validator, dark surface #0B1220) */
+/* Tema değişkenli palet — iki yüzey için de dataviz doğrulamasından geçti */
 const C1 = SERIES[0]; // counts
 const C2 = SERIES[1]; // magnitude overlay
-const GRID = 'rgba(148,163,184,0.10)';
-const AXIS = { fill: '#64748B', fontSize: 10 } as const;
-const AXIS_LINE = { stroke: 'rgba(148,163,184,0.22)' } as const;
+const GRID = 'rgb(var(--txt-soft) / 0.14)';
+const AXIS = { fill: 'rgb(var(--txt-mute))', fontSize: 10 } as const;
+const AXIS_LINE = { stroke: 'rgb(var(--txt-soft) / 0.28)' } as const;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function DarkTooltip({
@@ -113,8 +113,8 @@ export function TimelineChart({
         {showMax && (
           <YAxis yAxisId="mag" hide domain={[0, 6]} />
         )}
-        <Tooltip content={<DarkTooltip labelFormatter={(l: string) => fmtShort(l)} />} cursor={{ fill: 'rgba(148,163,184,0.06)' }} />
-        {showMax && <Legend wrapperStyle={{ fontSize: 10, color: '#94A3B8' }} iconSize={8} />}
+        <Tooltip content={<DarkTooltip labelFormatter={(l: string) => fmtShort(l)} />} cursor={{ fill: 'rgb(var(--txt-soft) / 0.08)' }} />
+        {showMax && <Legend wrapperStyle={{ fontSize: 10, color: 'rgb(var(--txt-soft))' }} iconSize={8} />}
         <Bar dataKey="count" name="Deprem sayısı" fill={C1} radius={[4, 4, 0, 0]} maxBarSize={26} />
         {showMax && (
           <Line
@@ -151,8 +151,8 @@ export function DistBarChart({
         <ComposedChart data={data} layout="vertical" margin={{ top: 4, right: 24, bottom: 0, left: 8 }}>
           <CartesianGrid stroke={GRID} horizontal={false} />
           <XAxis type="number" allowDecimals={false} tick={AXIS} axisLine={AXIS_LINE} tickLine={false} />
-          <YAxis type="category" dataKey="label" width={110} tick={{ ...AXIS, fill: '#94A3B8' }} axisLine={false} tickLine={false} />
-          <Tooltip content={<DarkTooltip />} cursor={{ fill: 'rgba(148,163,184,0.06)' }} />
+          <YAxis type="category" dataKey="label" width={110} tick={{ ...AXIS, fill: 'rgb(var(--txt-soft))' }} axisLine={false} tickLine={false} />
+          <Tooltip content={<DarkTooltip />} cursor={{ fill: 'rgb(var(--txt-soft) / 0.08)' }} />
           <Bar dataKey="count" name="Deprem sayısı" fill={color} radius={[0, 4, 4, 0]} maxBarSize={16}>
             {data.map((d) => (
               <Cell key={d.key} fill={color} />
@@ -168,7 +168,7 @@ export function DistBarChart({
         <CartesianGrid stroke={GRID} vertical={false} />
         <XAxis dataKey="label" tick={AXIS} axisLine={AXIS_LINE} tickLine={false} interval="preserveStartEnd" minTickGap={12} />
         <YAxis allowDecimals={false} tick={AXIS} axisLine={false} tickLine={false} />
-        <Tooltip content={<DarkTooltip />} cursor={{ fill: 'rgba(148,163,184,0.06)' }} />
+        <Tooltip content={<DarkTooltip />} cursor={{ fill: 'rgb(var(--txt-soft) / 0.08)' }} />
         <Bar dataKey="count" name="Deprem sayısı" fill={color} radius={[4, 4, 0, 0]} maxBarSize={26} />
       </ComposedChart>
     </ResponsiveContainer>
@@ -190,7 +190,7 @@ export function MagDepthScatter({ data, height = 260 }: { data: ScatterPoint[]; 
           tick={AXIS}
           axisLine={AXIS_LINE}
           tickLine={false}
-          label={{ value: 'Büyüklük (M)', position: 'insideBottom', offset: -2, fill: '#64748B', fontSize: 10 }}
+          label={{ value: 'Büyüklük (M)', position: 'insideBottom', offset: -2, fill: 'rgb(var(--txt-mute))', fontSize: 10 }}
         />
         <YAxis
           dataKey="depthKm"
@@ -200,11 +200,11 @@ export function MagDepthScatter({ data, height = 260 }: { data: ScatterPoint[]; 
           tick={AXIS}
           axisLine={false}
           tickLine={false}
-          label={{ value: 'Derinlik (km)', angle: -90, position: 'insideLeft', fill: '#64748B', fontSize: 10 }}
+          label={{ value: 'Derinlik (km)', angle: -90, position: 'insideLeft', fill: 'rgb(var(--txt-mute))', fontSize: 10 }}
         />
         <ZAxis dataKey="size" range={[16, 160]} />
-        <Tooltip content={<DarkTooltip />} cursor={{ strokeDasharray: '3 3', stroke: 'rgba(148,163,184,0.3)' }} />
-        <Scatter data={points} fill={C1} fillOpacity={0.65} stroke="#0B1220" strokeWidth={1} name="Deprem" />
+        <Tooltip content={<DarkTooltip />} cursor={{ strokeDasharray: '3 3', stroke: 'rgb(var(--txt-soft) / 0.3)' }} />
+        <Scatter data={points} fill={C1} fillOpacity={0.65} stroke="rgb(var(--ink-800))" strokeWidth={1} name="Deprem" />
       </ScatterChart>
     </ResponsiveContainer>
   );
@@ -235,9 +235,9 @@ export function TimeMagScatter({ data, height = 260 }: { data: ScatterPoint[]; h
               labelFormatter={(v: number) => fmtShort(new Date(v).toISOString())}
             />
           }
-          cursor={{ strokeDasharray: '3 3', stroke: 'rgba(148,163,184,0.3)' }}
+          cursor={{ strokeDasharray: '3 3', stroke: 'rgb(var(--txt-soft) / 0.3)' }}
         />
-        <Scatter data={points} fill={C1} fillOpacity={0.65} stroke="#0B1220" strokeWidth={1} name="Büyüklük" />
+        <Scatter data={points} fill={C1} fillOpacity={0.65} stroke="rgb(var(--ink-800))" strokeWidth={1} name="Büyüklük" />
       </ScatterChart>
     </ResponsiveContainer>
   );

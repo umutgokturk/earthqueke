@@ -9,10 +9,12 @@ import { KpiCards } from '@/components/kpi-cards';
 import { EarthquakeMap } from '@/components/map/earthquake-map';
 import { SourceStatusPanel } from '@/components/source-status';
 import { useLatest, useTimeline } from '@/lib/queries';
+import { useMapStore } from '@/stores/map-store';
 
 export function DashboardClient() {
   const { data: latest, isLoading: latestLoading } = useLatest(15);
   const { data: timeline, isLoading: timelineLoading } = useTimeline('24h');
+  const focusEvent = useMapStore((s) => s.focusEvent);
 
   return (
     <div className="space-y-4">
@@ -32,14 +34,22 @@ export function DashboardClient() {
         <Card className="xl:col-span-2">
           <CardHeader
             title="Canlı Deprem Tablosu"
-            subtitle="Yeni kayıtlar geldiğinde satır vurgulanır"
+            subtitle="Satıra tıkla → haritada gösterilir · yeni kayıtlar vurgulanır"
             right={
               <Link href="/earthquakes" className="text-[11px] font-semibold text-accent hover:underline">
                 Tümü →
               </Link>
             }
           />
-          <EarthquakeTable events={latest} loading={latestLoading} compact />
+          <EarthquakeTable
+            events={latest}
+            loading={latestLoading}
+            compact
+            onSelect={(id) => {
+              focusEvent(id);
+              document.querySelector('[role="application"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }}
+          />
         </Card>
         <ChartCard
           title="Son 24 Saat Yoğunluğu"
